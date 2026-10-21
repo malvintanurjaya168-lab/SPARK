@@ -14,9 +14,9 @@ git checkout chore/dockerize-project
 
 2. Configure Environment Variables (.env)
 Create a .env file in the root directory of the project with your exact Supabase credentials:
-NEXT_PUBLIC_SUPABASE_URL="https://lgirsfcgaasawsmruqrm.supabase.co"
-NEXT_PUBLIC_SUPABASE_ANON_KEY="sb_publishable_88z9G3AdSiRhXJuiFUKAow_8vnw4GyD"
-SUPABASE_SERVICE_ROLE_KEY="sb_secret_5y60BxWgK0zE2G12a3dmQQ_YZYTiRC6"
+NEXT_PUBLIC_SUPABASE_URL="[https://your-supabase-url.supabase.co](https://your-supabase-url.supabase.co)"
+NEXT_PUBLIC_SUPABASE_ANON_KEY="your-supabase-anon-key"
+SUPABASE_SERVICE_ROLE_KEY="your-supabase-service-role-key"
 
 3. Build & Run with Docker
 1. Build the Docker Image
