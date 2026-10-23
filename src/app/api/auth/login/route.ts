@@ -20,6 +20,10 @@ export async function POST(request: Request) {
       .eq('nomor_induk', nomor_induk)
       .single();
 
+    // LOG DITAMBAHKAN DI SINI UNTUK DEBUGGING
+    console.log(">>> SUPABASE ERROR:", error);
+    console.log(">>> USER DATA:", user);
+
     if (error || !user) {
       return NextResponse.json(
         { message: 'Nomor Induk tidak ditemukan' },
