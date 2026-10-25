@@ -75,11 +75,11 @@ SPARK has four roles, and the middleware keeps each one in its own lane. Try to 
 
 ---
 
-## Getting Started
+## Getting Started with Docker Desktop
 
 ### 1. Prerequisites & Tested Versions
-- **Docker Desktop:** v24.0.0 or newer
-- **Docker Engine:** Tested with Linux containers on Docker Desktop
+- **Docker Desktop:** v24.0.0 or newer (must be **running**)
+- **Docker Engine:** Tested with Linux containers (Docker Desktop's default mode)
 - **Git:** v2.x
 
 ### 2. Setup & Configuration
@@ -95,38 +95,139 @@ git checkout chore/dockerize-project
 
 The app needs a `.env` file with the Supabase credentials. For security reasons it is not stored in the repository, so please **ask the code owner directly for the `.env` file**. Place it in the root directory of the project (the same folder as the `Dockerfile`).
 
-### 3. Build & Run with Docker
-
-**3.1. Build the Docker image**
+### 3. Build the Docker Image
 ```bash
 docker build -t isapmd/spark:week6 .
 ```
+The first build downloads the base image and installs dependencies, so it can take a few minutes. Confirm the image exists:
+```bash
+docker images isapmd/spark
+```
 
-**3.2. Run the container**
+### 4. Run the Container
 ```bash
 docker run -d --name spark-container -p 3000:3000 --env-file .env isapmd/spark:week6
 ```
 
-### 4. Application Details & Access
-- **App URL:** http://localhost:3000
-- **Host Port Mapping:** 3000 (Host) → 3000 (Container)
-- **Base Image:** `node:20-alpine`
+| Detail | Value |
+|--------|-------|
+| App URL | http://localhost:3000 |
+| Port mapping | 3000 (Host) → 3000 (Container) |
+| Container name | `spark-container` |
+| Base image | `node:20-alpine` |
 
-### 5. Verification & Health Checks
+### 5. Verify the Application
 
-**5.1. Check container status**
+**5.1. Check that the container is running**
 ```bash
 docker ps
 ```
+`spark-container` should be listed with status `Up ...` and ports `0.0.0.0:3000->3000/tcp`.
 
-**5.2. Verify application functionality**
-1. Open http://localhost:3000 in your browser.
-2. Go to the login page and click the **Login / Masuk** button.
+**5.2. Check the logs for errors**
+```bash
+docker logs spark-container
+```
+
+**5.3. Verify functionality in the browser**
+1. Open http://localhost:3000. You'll be redirected to the login page.
+2. Log in using the **Login / Masuk** button.
 3. Confirm you reach the Administrator Dashboard and that the **Database System** widget shows an **Active** status.
 
+**5.4. (Optional) Quick database check from the terminal**
+```bash
+curl http://localhost:3000/api/keep-alive
+```
+Expected response: `{"status":"active","message":"SPARK Database is awake", ...}`
 
-### 6. Tutorial Docker Run Video:
-Link: https://drive.google.com/drive/folders/1DiRrfVDaAFAR-B0OLjsdVu35ZMnqKOtf?hl=ID 
+### 6. Viewing Logs
+```bash
+# Print all logs
+docker logs spark-container
+
+# Follow logs live (Ctrl+C to stop following)
+docker logs -f spark-container
+
+# Show only the last 100 lines
+docker logs --tail 100 spark-container
+```
+You can also open **Docker Desktop → Containers → spark-container → Logs**.
+
+### 7. Stopping & Cleaning Up
+```bash
+# Stop the container
+docker stop spark-container
+
+# Start it again later (no rebuild needed)
+docker start spark-container
+
+# Remove the container (required before re-running with the same name)
+docker rm spark-container
+
+# Remove the image (optional, frees disk space)
+docker rmi isapmd/spark:week6
+```
+
+**Rebuild after code changes**
+```bash
+docker stop spark-container
+docker rm spark-container
+docker build -t isapmd/spark:week6 .
+docker run -d --name spark-container -p 3000:3000 --env-file .env isapmd/spark:week6
+```
+
+### 8. Troubleshooting
+### 8. Troubleshooting
+
+**Docker daemon not reachable** (`Cannot connect to the Docker daemon` / `error during connect`)
+- Cause: Docker Desktop isn't running.
+- Fix: Start Docker Desktop, wait until it says *Engine running*, then retry.
+
+**Image won't run on Windows** (`no matching manifest`)
+- Cause: Docker Desktop is in **Windows containers** mode, but the image is Linux (`node:20-alpine`).
+- Fix: Right-click the Docker tray icon and choose **Switch to Linux containers**.
+
+**Port already in use** (`port is already allocated` / `address already in use`)
+- Cause: Another app is using port 3000.
+- Fix: Stop that app, or use another host port: `-p 3001:3000`, then open http://localhost:3001.
+
+**Container name already in use** (`The container name "/spark-container" is already in use`)
+- Cause: An old container with the same name still exists.
+- Fix: Run `docker rm -f spark-container`, then run the container again.
+
+**`.env` file not found** (`open .env: no such file or directory`)
+- Cause: The file is missing, or you're running the command from the wrong folder.
+- Fix: Get the `.env` file from the code owner, put it in the project root, and run the command from that folder.
+
+**Container exits right away** (logs show `Missing Supabase environment variables`)
+- Cause: `.env` is empty, misnamed (e.g. `.env.txt`), or missing a variable.
+- Fix: Make sure the file is named exactly `.env` and contains all three Supabase variables. Ask the code owner for a fresh copy if needed.
+
+**Login fails or the Database System widget isn't "Active"**
+- Cause: Wrong or expired Supabase credentials, or the Supabase project is paused.
+- Fix: Ask the code owner to confirm the credentials and that the Supabase project is active, then recreate the container.
+
+**`.env` values seem ignored or broken**
+- Cause: `docker --env-file` does not strip quotes, so `KEY="value"` keeps the quotes as part of the value.
+- Fix: Use `KEY=value` with no quotes.
+
+**Changed `.env` but nothing changed**
+- Cause: Environment variables are read only when the container is created.
+- Fix: Run `docker rm -f spark-container`, then run the container again.
+
+**`docker build` fails while installing packages**
+- Cause: Network problem or a stale cache.
+- Fix: Check your internet connection, then retry with `docker build --no-cache -t isapmd/spark:week6 .`
+
+**Page doesn't load but the container is `Up`**
+- Cause: The app is still starting.
+- Fix: Wait a few seconds, watch `docker logs -f spark-container`, then refresh the page.
+
+**Need to look inside the container**
+- Run `docker exec -it spark-container sh` (type `exit` to leave).
+
+### 9. Tutorial Docker Run Video:
+Link: https://drive.google.com/drive/folders/1DiRrfVDaAFAR-B0OLjsdVu35ZMnqKOtf?hl=ID
 
 ---
 
