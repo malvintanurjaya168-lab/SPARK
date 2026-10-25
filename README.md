@@ -126,7 +126,7 @@ docker ps
 
 
 ### 6. Tutorial Docker Run Video:
-Link: 
+Link: https://drive.google.com/drive/folders/1DiRrfVDaAFAR-B0OLjsdVu35ZMnqKOtf?hl=ID
 ---
 
 **Built with ☕, caffeine-fueled determination, and a healthy fear of spreadsheets, for SMA Presiden.**
