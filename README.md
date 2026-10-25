@@ -77,47 +77,56 @@ SPARK has four roles, and the middleware keeps each one in its own lane. Try to 
 
 ## Getting Started
 
-### 1. Clone and install
+### 1. Prerequisites & Tested Versions
+- **Docker Desktop:** v24.0.0 or newer
+- **Docker Engine:** Tested with Linux containers on Docker Desktop
+- **Git:** v2.x
 
+### 2. Setup & Configuration
+
+**2.1. Clone the repository**
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/malvintanurjaya168-lab/SPARK.git
 cd SPARK
-npm install
+git checkout chore/dockerize-project
 ```
 
-### 2. Set up Supabase
+**2.2. Get the environment file**
 
-1. Create a project at [supabase.com](https://supabase.com).
-2. Open the **SQL Editor** and run [`database-schema.sql`](./database-schema.sql). It creates the tables, indexes, a default semester, and the sample categories above.
-3. Create your first `kesiswaan` user (and then everyone else via import).
+The app needs a `.env` file with the Supabase credentials. For security reasons it is not stored in the repository, so please **ask the code owner directly for the `.env` file**. Place it in the root directory of the project (the same folder as the `Dockerfile`).
 
-> `migrations/` holds incremental changes (e.g. the `point_requests` table). `database-schema.sql` is the full picture.
+### 3. Build & Run with Docker
 
-### 3. Environment variables
-
-Create a `.env.local` in the project root:
-
-```env
-NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-
-# Server-side key (preferred). Falls back to the anon key if not set.
-SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
-```
-
-### 4. Run it
-
+**3.1. Build the Docker image**
 ```bash
-npm run dev
+docker build -t isapmd/spark:week6 .
 ```
 
-Open [http://localhost:3000](http://localhost:3000). You'll be redirected to `/login`, because SPARK trusts no one. 🕵️
+**3.2. Run the container**
+```bash
+docker run -d --name spark-container -p 3000:3000 --env-file .env isapmd/spark:week6
+```
 
-### Other scripts
-- `npm run build` : Production build
-- `npm start` : Run the production build
-- `npm run lint` : ESLint, aka the grammar police
+### 4. Application Details & Access
+- **App URL:** http://localhost:3000
+- **Host Port Mapping:** 3000 (Host) → 3000 (Container)
+- **Base Image:** `node:20-alpine`
 
+### 5. Verification & Health Checks
+
+**5.1. Check container status**
+```bash
+docker ps
+```
+
+**5.2. Verify application functionality**
+1. Open http://localhost:3000 in your browser.
+2. Go to the login page and click the **Login / Masuk** button.
+3. Confirm you reach the Administrator Dashboard and that the **Database System** widget shows an **Active** status.
+
+
+### 6. Tutorial Docker Run Video:
+Link: 
 ---
 
 **Built with ☕, caffeine-fueled determination, and a healthy fear of spreadsheets, for SMA Presiden.**
